@@ -1,0 +1,80 @@
+  {% comment %}
+  https://harctic.myshopify.com/
+  {% endcomment %}
+<div
+  id="ProductSection-{{ product.id }}"
+  data-section-id="{{ product.id }}"
+  data-section-type="product"
+  data-enable-history-state="true"
+  data-ajax-enabled="{{ settings.enable_ajax }}"
+>
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+ 
+ {% form 'product', product, class:form_classes, novalidate: 'novalidate',
+ data-product-form: '' %} 
+  <input type="hidden" name="id" value="{{ product.variants.first.id }}" />
+  <input min="1" type="hidden" id="quantity" name="quantity" value="1" data-quantity-input/>
+  
+  {% comment %}	<button type="submit" class="animation">
+	  	<div id="circle-container">
+			<div id="cc">
+			<div class="circle" id="five"></div>
+			<div class="circle" id="four"></div>
+			<div class="circle" id="three"></div>
+			<div class="circle" id="two"></div>
+			<div class="circle" id="one">Add to cart</div>
+			</div>
+	    </div>
+    </button>
+{% endcomment %}
+<div class="product-form__error-message-wrapper product-form__error-message-wrapper--hidden{% if section.settings.enable_payment_button %} product-form__error-message-wrapper--has-payment-button{% endif %}"
+                data-error-message-wrapper
+                role="alert"
+              >
+                <span class="visually-hidden">{{ 'general.accessibility.error' | t }} </span>
+                {% include 'icon-error' %}
+                <span class="product-form__error-message" data-error-message>{{ 'products.product.quantity_minimum_message' | t }}</span>
+              </div>
+ 
+
+<button type="submit" name="add"
+                    {% unless current_variant.available %} aria-disabled="true"{% endunless %}
+                    aria-label="{% unless current_variant.available %}{{ 'products.product.sold_out' | t }}{% else %}{{ 'products.product.add_to_cart' | t }}{% endunless %}"
+                    class="animation btn product-form__cart-submit{% if section.settings.enable_payment_button and product.selling_plan_groups == empty %} btn--secondary-accent{% endif %}"
+                    {% if settings.enable_ajax %}aria-haspopup="dialog"{% endif %}
+                    data-add-to-cart>
+                    <span data-add-to-cart-text>
+                      {% unless current_variant.available %}
+                        {{ 'products.product.sold_out' | t }}
+                      {% else %}
+                        {{ 'products.product.add_to_cart' | t }}
+                      {% endunless %}
+                    </span>
+                    <span class="hide" data-loader>
+                      {% include 'icon-spinner' %}
+                    </span>
+                  </button>
+
+ 
+{% endform %}
+<p class="visually-hidden" data-product-status
+          aria-live="polite"
+          role="status"
+        ></p>
+        <p class="visually-hidden" data-loader-status
+          aria-live="assertive"
+          role="alert"
+          aria-hidden="true"
+        >{{ 'products.product.loader_label' | t }}</p>
+ 
+</div>
+
+
+{% unless product == empty %}
+  <script type="application/json" id="ProductJson-{{ product.id }}">
+    {{ product | json }}
+  </script>
+  <script type="application/json" id="ModelJson-{{ product.id }}">
+    {{ product.media | where: 'media_type', 'model' | json }}
+  </script>
+{% endunless %}
